@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Strength Checker</title>
+    <style>
+        body {
+            font-family: 'Consolas', monospace;
+            background: #000;
+            color: #0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(0,255,0,0.1), rgba(0,0,0,1));
+            animation: backgroundAnimation 10s infinite;
+        }
+
+        @keyframes backgroundAnimation {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .container {
+            background-color: #111;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 20px rgba(0, 255, 0, 0.6);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            border: 2px solid #0f0;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+            color: #0f0;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            border: 2px solid #0f0;
+            border-radius: 5px;
+            background-color: #000;
+            color: #0f0;
+            font-size: 18px;
+        }
+
+        #strength-bar {
+            width: 100%;
+            height: 15px;
+            background-color: #333;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        #strength-indicator {
+            height: 100%;
+            width: 0;
+            background-color: red;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        #strength-message,
+        #crack-time {
+            font-weight: bold;
+            margin: 10px 0;
+            font-size: 18px;
+            color: #0f0;
+        }
+
+        #requirements {
+            text-align: left;
+            margin: 10px 0;
+        }
+
+        .requirement {
+            color: #f00;
+        }
+
+        .requirement.met {
+            color: #0f0;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: 90%;
+            }
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted #0f0;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            background-color: #000;
+            color: #0f0;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; 
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <div class="container">
+        <h1>Password Strength Checker</h1>
+        <div class="tooltip">
+            <input type="password" id="password" placeholder="Enter your password" oninput="checkPasswordStrength()">
+            <span class="tooltiptext">Use a mix of upper and lower case letters, numbers, and special characters for a strong password.</span>
+        </div>
+        <div id="strength-bar">
+            <div id="strength-indicator"></div>
+        </div>
+        <p id="strength-message">Enter a password to check its strength.</p>
+        <p id="crack-time">Password crack time will be displayed here.</p>
+        <div id="requirements">
+            <p class="requirement" id="length-req">At least 8 characters</p>
+            <p class="requirement" id="uppercase-req">At least 1 uppercase letter</p>
+            <p class="requirement" id="lowercase-req">At least 1 lowercase letter</p>
+            <p class="requirement" id="number-req">At least 1 number</p>
+            <p class="requirement" id="special-req">At least 1 special character</p>
+        </div>
+    </div>
+    <script>
+        function checkPasswordStrength() {
+            const password = document.getElementById('password').value;
+            const strengthIndicator = document.getElementById('strength-indicator');
+            const strengthMessage = document.getElementById('strength-message');
+            const crackTime = document.getElementById('crack-time');
+            const lengthReq = document.getElementById('length-req');
+            const uppercaseReq = document.getElementById('uppercase-req');
+            const lowercaseReq = document.getElementById('lowercase-req');
+            const numberReq = document.getElementById('number-req');
+            const specialReq = document.getElementById('special-req');
+
+            let strength = 0;
+            let timeToCrack = '';
+
+            if (password.length >= 8) {
+                strength += 1;
+                lengthReq.classList.add('met');
+            } else {
+                lengthReq.classList.remove('met');
+            }
+            if (/[A-Z]/.test(password)) {
+                strength += 1;
+                uppercaseReq.classList.add('met');
+            } else {
+                uppercaseReq.classList.remove('met');
+            }
+            if (/[a-z]/.test(password)) {
+                strength += 1;
+                lowercaseReq.classList.add('met');
+            } else {
+                lowercaseReq.classList.remove('met');
+            }
+            if (/[0-9]/.test(password)) {
+                strength += 1;
+                numberReq.classList.add('met');
+            } else {
+                numberReq.classList.remove('met');
+            }
+            if (/[\W]/.test(password)) {
+                strength += 1;
+                specialReq.classList.add('met');
+            } else {
+                specialReq.classList.remove('met');
+            }
+
+            switch (strength) {
+                case 0:
+                    strengthIndicator.style.width = '0';
+                    strengthMessage.innerText = 'Enter a password to check its strength.';
+                    crackTime.innerText = 'Password crack time will be displayed here.';
+                    break;
+                case 1:
+                    strengthIndicator.style.width = '20%';
+                    strengthIndicator.style.backgroundColor = 'red';
+                    strengthMessage.innerText = 'Very Weak';
+                    timeToCrack = 'seconds';
+                    break;
+                case 2:
+                    strengthIndicator.style.width = '40%';
+                    strengthIndicator.style.backgroundColor = 'orange';
+                    strengthMessage.innerText = 'Weak';
+                    timeToCrack = 'minutes';
+                    break;
+                case 3:
+                    strengthIndicator.style.width = '60%';
+                    strengthIndicator.style.backgroundColor = 'yellow';
+                    strengthMessage.innerText = 'Medium';
+                    timeToCrack = 'hours';
+                    break;
+                case 4:
+                    strengthIndicator.style.width = '80%';
+                    strengthIndicator.style.backgroundColor = 'blue';
+                    strengthMessage
+                    strengthMessage.innerText = 'Strong';
+                timeToCrack = 'days';
+                break;
+            case 5:
+                strengthIndicator.style.width = '100%';
+                strengthIndicator.style.backgroundColor = 'green';
+                strengthMessage.innerText = 'Very Strong';
+                timeToCrack = 'years';
+                break;
+        }
+
+        if (strength > 0) {
+            crackTime.innerText = `Estimated time to crack: ${timeToCrack}`;
+        } else {
+            crackTime.innerText = 'Password crack time will be displayed here.';
+        }
+    }
+</script>
+</body>
+</html>
