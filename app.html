@@ -1,3 +1,4 @@
+<body>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,7 +26,8 @@
             width: 100%;
             height: 100%;
             background: radial-gradient(circle, rgba(0,255,0,0.1), rgba(0,0,0,1));
-            animation: backgroundAnimation 10s infinite;
+            animation: backgroundAnimation 10s infinite linear;
+            z-index: 0;
         }
 
         @keyframes backgroundAnimation {
@@ -39,11 +41,11 @@
 
         .container {
             background-color: #111;
-            padding: 30px;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0px 0px 20px rgba(0, 255, 0, 0.6);
-            max-width: 400px;
-            width: 100%;
+            max-width: 380px;
+            width: 90%;
             text-align: center;
             border: 2px solid #0f0;
             position: relative;
@@ -51,30 +53,32 @@
         }
 
         h1 {
-            margin-bottom: 20px;
-            font-size: 28px;
+            margin-bottom: 15px;
+            font-size: 22px;
             color: #0f0;
         }
 
         input[type="password"] {
             width: 100%;
-            padding: 10px;
-            margin: 15px 0;
+            max-width: 300px; /* Limit the max width for better centering */
+            padding: 8px;
+            margin: 10px auto; /* Centered vertically */
             border: 2px solid #0f0;
             border-radius: 5px;
             background-color: #000;
             color: #0f0;
-            font-size: 18px;
+            font-size: 14px;
+            display: block; /* Ensures centering */
         }
 
         #strength-bar {
             width: 100%;
-            height: 15px;
+            max-width: 300px; /* Limit the max width for better centering */
+            height: 10px;
             background-color: #333;
             border-radius: 5px;
             overflow: hidden;
-            margin: 10px 0;
-            position: relative;
+            margin: 8px auto; /* Centered vertically */
         }
 
         #strength-indicator {
@@ -87,18 +91,19 @@
         #strength-message,
         #crack-time {
             font-weight: bold;
-            margin: 10px 0;
-            font-size: 18px;
-            color: #0f0;
+            margin: 8px 0;
+            font-size: 14px;
         }
 
         #requirements {
             text-align: left;
-            margin: 10px 0;
+            margin: 8px auto;
+            max-width: 300px; /* Centered and limited width */
         }
 
         .requirement {
             color: #f00;
+            font-size: 12px;
         }
 
         .requirement.met {
@@ -106,51 +111,53 @@
         }
 
         @media (max-width: 600px) {
-            .container {
-                width: 90%;
+            body {
+                height: auto;
+                padding: 20px;
+                align-items: flex-start;
             }
+            
+            .container {
+                width: 100%;
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            input[type="password"] {
+                font-size: 13px;
+                padding: 6px;
+            }
+
+            #strength-message,
+            #crack-time {
+                font-size: 13px;
+            }
+
+            .requirement {
+    color: #f00;
+    font-size: 12px;
+}
+
+.requirement.met {
+    color: #0f0;
+}
+
         }
         
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            border-bottom: 1px dotted #0f0;
-        }
-
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 250px;
-            background-color: #000;
-            color: #0f0;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%; 
-            left: 50%;
-            margin-left: -125px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
     </style>
 </head>
 <body>
     <div class="background"></div>
     <div class="container">
         <h1>Password Strength Checker</h1>
-        <div class="tooltip">
-            <input type="password" id="password" placeholder="Enter your password" oninput="checkPasswordStrength()">
-            <span class="tooltiptext">Use a mix of upper and lower case letters, numbers, and special characters for a strong password.</span>
-        </div>
+        <input type="password" id="password" placeholder="Enter your password" oninput="checkPasswordStrength()">
         <div id="strength-bar">
             <div id="strength-indicator"></div>
         </div>
+        <p id="unsafe-message"></p>
         <p id="strength-message">Enter a password to check its strength.</p>
         <p id="crack-time">Password crack time will be displayed here.</p>
         <div id="requirements">
@@ -159,7 +166,10 @@
             <p class="requirement" id="lowercase-req">At least 1 lowercase letter</p>
             <p class="requirement" id="number-req">At least 1 number</p>
             <p class="requirement" id="special-req">At least 1 special character</p>
+            <p id="unsafe-message"></p>
+
         </div>
+        
     </div>
     <script>
         function checkPasswordStrength() {
@@ -167,91 +177,163 @@
             const strengthIndicator = document.getElementById('strength-indicator');
             const strengthMessage = document.getElementById('strength-message');
             const crackTime = document.getElementById('crack-time');
-            const lengthReq = document.getElementById('length-req');
-            const uppercaseReq = document.getElementById('uppercase-req');
-            const lowercaseReq = document.getElementById('lowercase-req');
-            const numberReq = document.getElementById('number-req');
-            const specialReq = document.getElementById('special-req');
 
             let strength = 0;
             let timeToCrack = '';
 
-            if (password.length >= 8) {
-                strength += 1;
-                lengthReq.classList.add('met');
-            } else {
-                lengthReq.classList.remove('met');
-            }
-            if (/[A-Z]/.test(password)) {
-                strength += 1;
-                uppercaseReq.classList.add('met');
-            } else {
-                uppercaseReq.classList.remove('met');
-            }
-            if (/[a-z]/.test(password)) {
-                strength += 1;
-                lowercaseReq.classList.add('met');
-            } else {
-                lowercaseReq.classList.remove('met');
-            }
-            if (/[0-9]/.test(password)) {
-                strength += 1;
-                numberReq.classList.add('met');
-            } else {
-                numberReq.classList.remove('met');
-            }
-            if (/[\W]/.test(password)) {
-                strength += 1;
-                specialReq.classList.add('met');
-            } else {
-                specialReq.classList.remove('met');
-            }
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[\W]/.test(password)) strength++;
 
-            switch (strength) {
-                case 0:
-                    strengthIndicator.style.width = '0';
-                    strengthMessage.innerText = 'Enter a password to check its strength.';
-                    crackTime.innerText = 'Password crack time will be displayed here.';
-                    break;
-                case 1:
-                    strengthIndicator.style.width = '20%';
-                    strengthIndicator.style.backgroundColor = 'red';
-                    strengthMessage.innerText = 'Very Weak';
-                    timeToCrack = 'seconds';
-                    break;
-                case 2:
-                    strengthIndicator.style.width = '40%';
-                    strengthIndicator.style.backgroundColor = 'orange';
-                    strengthMessage.innerText = 'Weak';
-                    timeToCrack = 'minutes';
-                    break;
-                case 3:
-                    strengthIndicator.style.width = '60%';
-                    strengthIndicator.style.backgroundColor = 'yellow';
-                    strengthMessage.innerText = 'Medium';
-                    timeToCrack = 'hours';
-                    break;
-                case 4:
-                    strengthIndicator.style.width = '80%';
-                    strengthIndicator.style.backgroundColor = 'blue';
-                    strengthMessage
-                    strengthMessage.innerText = 'Strong';
-                timeToCrack = 'days';
-                break;
-            case 5:
-                strengthIndicator.style.width = '100%';
-                strengthIndicator.style.backgroundColor = 'green';
-                strengthMessage.innerText = 'Very Strong';
-                timeToCrack = 'years';
-                break;
+            const colors = ['red', 'orange', 'yellow', 'blue', 'green'];
+            const messages = ['Very Weak', 'Weak', 'Medium', 'Strong', 'Very Strong'];
+            const times = ['seconds', 'minutes', 'hours', 'days', 'years'];
+
+            strengthIndicator.style.width = (strength * 20) + '%';
+            strengthIndicator.style.backgroundColor = colors[strength - 1] || 'red';
+            strengthMessage.innerText = messages[strength - 1] || 'Enter a password';
+            crackTime.innerText = strength > 0 ? `Estimated time to crack: ${times[strength - 1]}` : 'Password crack time will be displayed here.';
         }
 
-        if (strength > 0) {
-            crackTime.innerText = `Estimated time to crack: ${timeToCrack}`;
+        function checkPasswordStrength() {
+        const password = document.getElementById('password').value;
+        const strengthIndicator = document.getElementById('strength-indicator');
+        const strengthMessage = document.getElementById('strength-message');
+        const crackTime = document.getElementById('crack-time');
+
+        // Get all the requirement elements
+        const lengthReq = document.getElementById('length-req');
+        const uppercaseReq = document.getElementById('uppercase-req');
+        const lowercaseReq = document.getElementById('lowercase-req');
+        const numberReq = document.getElementById('number-req');
+        const specialReq = document.getElementById('special-req');
+
+        let strength = 0;
+
+        // Check each requirement and update its color
+        if (password.length >= 8) {
+            strength += 1;
+            lengthReq.classList.add('met');
         } else {
-            crackTime.innerText = 'Password crack time will be displayed here.';
+            lengthReq.classList.remove('met');
         }
+
+        if (/[A-Z]/.test(password)) {
+            strength += 1;
+            uppercaseReq.classList.add('met');
+        } else {
+            uppercaseReq.classList.remove('met');
+        }
+
+        if (/[a-z]/.test(password)) {
+            strength += 1;
+            lowercaseReq.classList.add('met');
+        } else {
+            lowercaseReq.classList.remove('met');
+        }
+
+        if (/[0-9]/.test(password)) {
+            strength += 1;
+            numberReq.classList.add('met');
+        } else {
+            numberReq.classList.remove('met');
+        }
+
+        if (/[\W]/.test(password)) {
+            strength += 1;
+            specialReq.classList.add('met');
+        } else {
+            specialReq.classList.remove('met');
+        }
+
+        // Update the strength bar and message
+        const colors = ['red', 'orange', 'yellow', 'blue', 'green'];
+        const messages = ['Very Weak', 'Weak', 'Medium', 'Strong', 'Very Strong'];
+        const crackTimes = ['Instant', 'Few seconds', 'Minutes', 'Hours', 'Years'];
+
+        strengthIndicator.style.width = (strength * 20) + '%';
+        strengthIndicator.style.backgroundColor = colors[strength - 1] || 'red';
+        strengthMessage.innerText = messages[strength - 1] || 'Enter a password';
+        crackTime.innerText = strength > 0 ? `Estimated crack time: ${crackTimes[strength - 1]}` : 'Password crack time will be displayed here.';
+
+        const commonPasswords = [
+        '123456', 'password', '123456789', '12345678', '12345', '1234567', '123123', 'qwerty', 
+        'abc123', 'password1', '111111', 'letmein', 'welcome', 'admin', 'iloveyou', 'sunshine'
+    ];
+
+    function checkPasswordStrength() {
+        const password = document.getElementById('password').value;
+        const strengthIndicator = document.getElementById('strength-indicator');
+        const strengthMessage = document.getElementById('strength-message');
+        const crackTime = document.getElementById('crack-time');
+        const unsafeMessage = document.getElementById('unsafe-message'); // New element for unsafe password
+
+        // Get all the requirement elements
+        const lengthReq = document.getElementById('length-req');
+        const uppercaseReq = document.getElementById('uppercase-req');
+        const lowercaseReq = document.getElementById('lowercase-req');
+        const numberReq = document.getElementById('number-req');
+        const specialReq = document.getElementById('special-req');
+
+        let strength = 0;
+
+        // Check if the password is a common one
+        if (commonPasswords.includes(password.toLowerCase())) {
+            unsafeMessage.innerText = 'This is a commonly used password and is not safe!';
+            unsafeMessage.style.color = '#f00';
+        } else {
+            unsafeMessage.innerText = '';
+        }
+
+        // Check each requirement and update its color
+        if (password.length >= 8) {
+            strength += 1;
+            lengthReq.classList.add('met');
+        } else {
+            lengthReq.classList.remove('met');
+        }
+
+        if (/[A-Z]/.test(password)) {
+            strength += 1;
+            uppercaseReq.classList.add('met');
+        } else {
+            uppercaseReq.classList.remove('met');
+        }
+
+        if (/[a-z]/.test(password)) {
+            strength += 1;
+            lowercaseReq.classList.add('met');
+        } else {
+            lowercaseReq.classList.remove('met');
+        }
+
+        if (/[0-9]/.test(password)) {
+            strength += 1;
+            numberReq.classList.add('met');
+        } else {
+            numberReq.classList.remove('met');
+        }
+
+        if (/[\W]/.test(password)) {
+            strength += 1;
+            specialReq.classList.add('met');
+        } else {
+            specialReq.classList.remove('met');
+        }
+
+        // Update the strength bar and message
+        const colors = ['red', 'orange', 'yellow', 'blue', 'green'];
+        const messages = ['Very Weak', 'Weak', 'Medium', 'Strong', 'Very Strong'];
+        const crackTimes = ['Instant', 'Few seconds', 'Minutes', 'Hours', 'Years'];
+
+        strengthIndicator.style.width = (strength * 20) + '%';
+        strengthIndicator.style.backgroundColor = colors[strength - 1] || 'red';
+        strengthMessage.innerText = messages[strength - 1] || 'Enter a password';
+        crackTime.innerText = strength > 0 ? `Estimated crack time: ${crackTimes[strength - 1]}` : 'Password crack time will be displayed here.';
     }
-</script>
+    }
+    </script>
 </body>
 </html>
